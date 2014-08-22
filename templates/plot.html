@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<div id="flotcontainer" style="width:600px;height:300px"></div>
+
+
+<style type="text/css">
+#flotcontainer {
+    width: 600px;
+    height: 200px;
+    text-align: center;
+    margin: 0 auto;
+}
+</style>
+
+<script type="text/javascript">
+
+	 
+	$(function (data) {    
+		var data = {{ data }};
+	     
+	    $.plot($("#flotcontainer"),
+	        [
+	            {data: data}
+	        ],
+	        {
+
+	            grid: {
+	                backgroundColor: { colors: ["#75A7E0", "#1F77DB"]  }
+	            },
+	            xaxis: {
+	                mode: "time",
+	                timeformat: "%H:%M",
+	                timezone: null
+	            }
+	        }
+	    );
+	 
+	});
+
+</script>
+
+{% endblock %}

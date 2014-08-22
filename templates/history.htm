@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block body %}
+  <h1> History </h1>
+
+  <ul class=entries>
+  {% for entry in entries %}
+    <li>
+      {{ entry.time_stamp|safe }}
+      <img src="/{{ entry.file_location }}" height="100px"/>
+      {{ entry.annotation }}
+      <a href="{{ url_for('annotate') }}?id_button={{ entry.id_button }}">Edit</a> -
+      <a href="{{ url_for('delete') }}?id_button={{ entry.id_button }}">Delete</a>
+    </li>
+  {% else %}
+    <li>
+      <em>Unbelievable.  No entries here so far</em>
+    </li>
+  {% endfor %}
+  </ul>
+{% endblock %}
