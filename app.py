@@ -10,7 +10,7 @@ import requests
 from models import db, Person, ButtonPress
 
 app = Flask(__name__)
-app.secret_key = 'F12Zr47j\3yX R~X@H!jmM]Lwf/,?KT'
+app.secret_key = os.environ['SECRET_KEY']
 DB_PATH = os.path.join(os.path.split(os.path.abspath(__file__))[0], 'test.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///{0}'.format(DB_PATH)
 db.init_app(app)
