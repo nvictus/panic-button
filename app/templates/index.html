@@ -18,61 +18,46 @@
         $("#timestamps").html(data["timestamp"].toString()+data["user_id"].toString());
       });
     }
-    // function (data) {    
-    //  var data = {{ data }};
-    //     $.plot($("#flotcontainer"),
-    //         [
-    //             {data: data}
-    //         ],
-    //         {
 
-    //             grid: {
-    //                 backgroundColor: { colors: ["#75A7E0", "#1F77DB"]  }
-    //             },
-    //             xaxis: {
-    //                 mode: "time",
-    //                 timeformat: "%H:%M",
-    //                 timezone: null
-    //             }
-    //         }
-    //     );    
-    // }
-
-    $(function worker() {
-        $.ajax({
-            url: 'ajax/data', 
-            success: function (data) {
-                console.log(data)
-
-                //var data = {{ data }};
-                $.plot($(".panic-plot"), [{data: data.series}], {
-
-                            series: {
-                                lines:{
-                                   fill: true
-                                }
-                                
-                            },
-                            grid: {
-                                //backgroundColor: { colors: ["#75A7E0", "#1F77DB"]  }
-                                backgroundColor: "#EFF2FB",
-                                borderWidth: 2,
-                            },
-                            xaxis: {
-                                mode: "time",
-                                timeformat: "%H:%M",
-                                timezone: null,
-                                //min: (new Date("2010/11/01")).getTime(),
-                                //max: (new Date("2011/02/01")).getTime()
-                            }
-                        }
-                    );   
-                },
-            complete: function() {
-                // Schedule the next request when the current one's complete
-                setTimeout(worker, 30000);
-                }
+    $(function () {
+        var plot = $.plot(".panic-plot", [{data: []}], {
+            series: {
+                lines: {fill: true}                    
+            },
+            
+            grid: {
+                //backgroundColor: { colors: ["#75A7E0", "#1F77DB"]  }
+                backgroundColor: "#EFF2FB",
+                borderWidth: 2,
+            },
+            
+            xaxis: {
+                mode: "time",
+                timeformat: "%H:%M",
+                timezone: "browser"
+            }
         });
+
+        function update() {
+
+            $.ajax({
+                url: 'ajax/data',
+                success: function(data) {
+                    console.log("got data");
+                    console.log(data);
+                    plot.setData([data.series]);
+                },
+                complete: function() {
+                    console.log("draw plot");
+                    plot.setupGrid()
+                    plot.draw();
+                    setTimeout(update, 300); // Update every minute (every 60000 ms)
+                }           
+            });
+
+        }
+        update();
+
     });
   </script>
 {% endblock %}
