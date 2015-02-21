@@ -11,8 +11,6 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
   <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.min.js"></script>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.time.min.js"></script>
 </head>
 <body>
   <div class="container">
@@ -34,7 +32,6 @@
           <ul class="nav navbar-nav">
           {% if current_user.is_authenticated() %}
             <li class="active"><a href="{{ url_for('index') }}">Home</a></li>
-            <li><a href="{{ url_for('plot') }}">Plot</a></li>
             <li><a href="{{ url_for('signout') }}">Sign Out</a></li>
           {% else %}
             <li><a href="{{ url_for('register') }}">Register</a></li>

@@ -73,44 +73,51 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/plot')
-def plot():
-    time_stamps = [bp.time_stamp for bp in ButtonPress.query.all()]
-    gby = itertools.groupby(time_stamps, lambda x: (x.hour, x.minute))
-    data = []
-    for item, group in gby:
-        items = [item for item in group]
-        x = calendar.timegm(items[0].timetuple())*1000
-        y = len(items)
-        data.append( [x,y] )
-    return render_template('plot.html', data=data)
+# @app.route('/plot')
+# def plot():
+#     time_stamps = [bp.time_stamp for bp in ButtonPress.query.all()]
+#     gby = itertools.groupby(time_stamps, lambda x: (x.hour, x.minute))
+#     data = []
+#     for item, group in gby:
+#         items = [item for item in group]
+#         x = calendar.timegm(items[0].timetuple())*1000
+#         y = len(items)
+#         data.append( [x,y] )
+#     return render_template('plot.html', data=data)
 
 
 
 
-@app.route('/press', methods=['POST'])
-def press():
+@app.route('/panic', methods=['POST'])
+def on_press():
     user_id = current_user.id
     user = User.query.filter_by(id=user_id).first()
+
     now = datetime.utcnow()
-    now_formatted = calendar.timegm(now.timetuple())
     new_press = ButtonPress(user, now)
     db.session.add(new_press)
     db.session.commit()
-    return jsonify( {"timestamp": now_formatted, "user_id" : user_id})
+
+    now_formatted = calendar.timegm(now.timetuple())*1000
+    return jsonify( {"timestamp": now_formatted, "count" : 1} )
 
 
-@app.route('/ajax/data')
-def get_data():
+@app.route('/panic', methods=['GET'])
+def on_data_request():
+    # user_id = current_user.id
+    # user = User.query.filter_by(id=user_id).first()
+
     time_stamps = [bp.time_stamp for bp in ButtonPress.query.all()]
     gby = itertools.groupby(time_stamps, lambda x: (x.hour, x.minute))
-    data = []
+    series = []
     for item, group in gby:
         items = [item for item in group]
         x = calendar.timegm(items[0].timetuple())*1000
         y = len(items)
-        data.append( [x,y] )
-    return jsonify({'series': data}) 
+        series.append( [x, y] )
+    series = sorted(series, key=lambda x: x[0])
+
+    return jsonify({'series': series})
 
 
 
