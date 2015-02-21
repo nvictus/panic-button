@@ -1,10 +1,64 @@
-body            { font-family: sans-serif; background: #eee; }
-a, h1, h2       { color: #377BA8; }
-h1, h2          { font-family: 'Georgia', serif; margin: 0; }
-h1              { border-bottom: 2px solid #eee; }
-h2              { font-size: 1.2em; }
+body { 
+    font-family: sans-serif; 
+    background: #eee;
+    padding-top: 40px;
+    padding-bottom: 40px;
+    background-color: #f5f5f5;
+}
+a, h1, h2 { 
+    color: #377BA8; 
+}
+h1, h2 { 
+    font-family: 'Georgia', 
+    serif; margin: 0; 
+}
+h1 { 
+    border-bottom: 2px solid #eee; 
+}
+h2 { 
+    font-size: 1.2em; 
+}
 
-.page           { margin: 2em auto; width: 35em; border: 5px solid #ccc;
+.form-signin, .form-register {
+    max-width: 300px;
+    padding: 19px 29px 29px;
+    margin: 0 auto 20px;
+    background-color: #fff;
+    border: 1px solid #e5e5e5;
+    -webkit-border-radius: 5px;
+       -moz-border-radius: 5px;
+            border-radius: 5px;
+    -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+       -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+            box-shadow: 0 1px 2px rgba(0,0,0,.05);
+}
+
+.panic-button-wrapper {
+    max-width: 300px;
+    padding: 19px 29px 29px;
+    margin: 0 auto 20px;
+
+}
+
+.panic-button-wrapper .panic-button {
+    display: block;
+    margin: 0 auto;
+}
+
+.panic-plot {
+    width: 600px;
+    height: 300px;
+    text-align: center;
+    margin: 0 auto;
+}
+
+
+/*nav {
+    max-width: 300px;
+    margin: 0 auto 20px;
+}*/
+
+/*.page           { margin: 2em auto; width: 35em; border: 5px solid #ccc;
                   padding: 0.8em; background: white; }
 .entries        { list-style: none; margin: 0; padding: 0; }
 .entries li     { margin: 0.8em 1.2em; }
@@ -15,4 +69,6 @@ h2              { font-size: 1.2em; }
                   margin-bottom: 1em; background: #fafafa; }
 .flash          { background: #CEE5F5; padding: 0.5em;
                   border: 1px solid #AACBE2; }
-.error          { background: #F0D6D6; padding: 0.5em; }
+.error          { background: #F0D6D6; padding: 0.5em; }*/
+
+

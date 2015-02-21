@@ -1,11 +1,16 @@
 {% extends "layout.html" %}
 
 {% block body %}
-  <div class="container">
-      <button onclick="onButtonPress()">Panic!</button>
-      <div id="timestamps"></div>
+  <div class="panic-button-wrapper container">
+      <button class="panic-button btn-primary btn-lg btn-danger" onclick="onButtonPress()">Panic!</button>
   </div>
 
+  <div class="panic-plot"></div>
+
+  <div id="timestamps"></div>
+{% endblock %}
+
+{% block javascripts %}
   <script>
     function onButtonPress() {
       $.post("press", function( data ) {
@@ -13,6 +18,62 @@
         $("#timestamps").html(data["timestamp"].toString()+data["user_id"].toString());
       });
     }
+    // function (data) {    
+    //  var data = {{ data }};
+    //     $.plot($("#flotcontainer"),
+    //         [
+    //             {data: data}
+    //         ],
+    //         {
+
+    //             grid: {
+    //                 backgroundColor: { colors: ["#75A7E0", "#1F77DB"]  }
+    //             },
+    //             xaxis: {
+    //                 mode: "time",
+    //                 timeformat: "%H:%M",
+    //                 timezone: null
+    //             }
+    //         }
+    //     );    
+    // }
+
+    $(function worker() {
+        $.ajax({
+            url: 'ajax/data', 
+            success: function (data) {
+                console.log(data)
+
+                //var data = {{ data }};
+                $.plot($(".panic-plot"), [{data: data.series}], {
+
+                            series: {
+                                lines:{
+                                   fill: true
+                                }
+                                
+                            },
+                            grid: {
+                                //backgroundColor: { colors: ["#75A7E0", "#1F77DB"]  }
+                                backgroundColor: "#EFF2FB",
+                                borderWidth: 2,
+                            },
+                            xaxis: {
+                                mode: "time",
+                                timeformat: "%H:%M",
+                                timezone: null,
+                                //min: (new Date("2010/11/01")).getTime(),
+                                //max: (new Date("2011/02/01")).getTime()
+                            }
+                        }
+                    );   
+                },
+            complete: function() {
+                // Schedule the next request when the current one's complete
+                setTimeout(worker, 30000);
+                }
+        });
+    });
   </script>
 {% endblock %}
 

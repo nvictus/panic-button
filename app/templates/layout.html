@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Panic button</title>
+  <meta charset="utf-8">
+  <title>Panic Button</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="">
   <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css">
   <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
   <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.min.js"></script>
@@ -11,27 +16,42 @@
 </head>
 <body>
   <div class="container">
+    <!-- NAVBAR
+    ================================================== -->
+    <!-- Static navbar -->
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="{{ url_for('index') }}">Panic Button</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+          {% if current_user.is_authenticated() %}
+            <li class="active"><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('plot') }}">Plot</a></li>
+            <li><a href="{{ url_for('signout') }}">Sign Out</a></li>
+          {% else %}
+            <li><a href="{{ url_for('register') }}">Register</a></li>
+<!--             <li><a href="{{ url_for('signin') }}">Sign In</a></li> -->
+          {% endif %}
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div><!--/.container-fluid -->
+    </nav>
 
-    <div class="page-header text-center">
-      <h1>Panic button</h1>
-    </div>
-
-    <div class="text-center">
-      {% if current_user.is_authenticated() %}
-        <a href="{{ url_for('index') }}">Home</a> -
-        <a href="{{ url_for('plot') }}">Plot</a> -
-        <a href="{{ url_for('signout') }}">Sign Out</a>
-      {% else %}
-        <a href="{{ url_for('register') }}">Register</a> -
-        <a href="{{ url_for('signin') }}">Sign In</a>
-      {% endif %}
-    </div>
-
+    <!-- FLASHED MESSAGES
+    ================================================== -->
     {% with messages = get_flashed_messages(with_categories=True) %}
       {% if messages %}
         {% for category, message in messages %}
           <div class=
-          {% if category == "success"  %}
+          {% if category == "success" %}
             "alert alert-success"
           {% elif category == "error" %}
             "alert alert-danger"
@@ -39,12 +59,26 @@
             "alert alert-info"
           {% endif %}>
               {{ message }}
-            </div>
+          </div>
         {% endfor %}
       {% endif %}
     {% endwith %}
+  
+    </div> <!-- container -->
 
-    {% block body %}{% endblock %}
-  </div>
+  <!-- CONTENT
+  ================================================== -->
+  {% block body %}{% endblock %}
+
+  <!-- SCRIPTS
+  ================================================== -->  
+  <script>
+    window.setTimeout(function() {
+      $(".alert").fadeTo(500, 0).slideUp(500, function(){
+        $(this).remove(); 
+      });
+    }, 2000);
+  </script>
+  {% block javascripts %}{% endblock %}
 </body>
 </html>

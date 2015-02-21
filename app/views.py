@@ -86,6 +86,8 @@ def plot():
     return render_template('plot.html', data=data)
 
 
+
+
 @app.route('/press', methods=['POST'])
 def press():
     user_id = current_user.id
