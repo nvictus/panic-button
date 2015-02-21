@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+
+{% block body %}
+  <div class="container">
+      <button onclick="onButtonPress()">Panic!</button>
+      <div id="timestamps"></div>
+  </div>
+
+  <script>
+    function onButtonPress() {
+      $.post("press", function( data ) {
+        //$("#timestamps").html(data["timestamp"].toString());
+        $("#timestamps").html(data["timestamp"].toString()+data["user_id"].toString());
+      });
+    }
+  </script>
+{% endblock %}
+

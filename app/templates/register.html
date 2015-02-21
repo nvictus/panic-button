@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+
+{% block body %}
+  <h2>Register</h2>
+    <form method="POST" action="{{ url_for('register') }}">
+      <dl>
+        {{ form.hidden_tag() }}
+        <dt>{{ form.username.label }} 
+        <dd>{{ form.username(size=20) }}
+        <dt>{{ form.password.label }} 
+        <dd>{{ form.password(size=20) }}
+        <dt>Input password again: 
+        <dd>{{ form.password2(size=20) }}
+        <dd><input type="submit" value="Register">
+      </dl>
+    </form>
+{% endblock %}
+
