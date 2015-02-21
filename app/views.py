@@ -8,7 +8,7 @@ from flask import Flask, session, request, flash, jsonify
 from flask import render_template, make_response, redirect, url_for
 from flask.ext.login import login_user, logout_user, login_required, current_user
 
-from .models import User, ButtonPress
+from .models import User, Room, Guest, Panic
 from .forms import SigninForm, RegistrationForm
 from . import app, db
 
@@ -24,6 +24,8 @@ def signin():
             return redirect(url_for('signin'))
         if user.check_password(form.password.data):
             login_user(user)
+            Room.query.filter_by(name='default').first().add_guest(user)
+
             flash("Signed in successfully.", "success")
             return redirect(request.args.get("next") or url_for("index"))
         else:
@@ -62,6 +64,8 @@ def register():
 
 @app.route('/signout')
 def signout():
+    for g in Guest.query.filter_by(user_id=current_user.id):
+        g.leave_room()
     logout_user()
     flash("Signed out successfully", "info")
     return redirect(url_for('signin'))
@@ -73,28 +77,16 @@ def index():
     return render_template('index.html')
 
 
-# @app.route('/plot')
-# def plot():
-#     time_stamps = [bp.time_stamp for bp in ButtonPress.query.all()]
-#     gby = itertools.groupby(time_stamps, lambda x: (x.hour, x.minute))
-#     data = []
-#     for item, group in gby:
-#         items = [item for item in group]
-#         x = calendar.timegm(items[0].timetuple())*1000
-#         y = len(items)
-#         data.append( [x,y] )
-#     return render_template('plot.html', data=data)
-
-
 
 
 @app.route('/panic', methods=['POST'])
 def on_press():
     user_id = current_user.id
     user = User.query.filter_by(id=user_id).first()
+    room = Room.query.filter_by(name='default').first()
 
     now = datetime.utcnow()
-    new_press = ButtonPress(user, now)
+    new_press = Panic(user, room, now)
     db.session.add(new_press)
     db.session.commit()
 
@@ -104,11 +96,12 @@ def on_press():
 
 @app.route('/panic', methods=['GET'])
 def on_data_request():
-    # user_id = current_user.id
-    # user = User.query.filter_by(id=user_id).first()
+    user_id = current_user.id
+    room_id = Room.query.filter_by(name='default').first().id
+    guest = Guest.query.filter_by(user_id=user_id, room_id=room_id)
+    times = [p.time_stamp for p in Panic.query.filter_by(guest=guest)]
 
-    time_stamps = [bp.time_stamp for bp in ButtonPress.query.all()]
-    gby = itertools.groupby(time_stamps, lambda x: (x.hour, x.minute))
+    gby = itertools.groupby(times, lambda x: (x.hour, x.minute))
     series = []
     for item, group in gby:
         items = [item for item in group]
@@ -117,7 +110,7 @@ def on_data_request():
         series.append( [x, y] )
     series = sorted(series, key=lambda x: x[0])
 
-    return jsonify({'series': series})
+    return jsonify( {'series': series} )
 
 
 

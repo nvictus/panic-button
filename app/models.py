@@ -46,15 +46,51 @@ class User(db.Model):
         return '<User %r>' % (self.username)
 
 
-class ButtonPress(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    time_stamp = db.Column(db.DateTime)
-    trackperson_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    trackperson = db.relationship('User', uselist=False)
+class Room(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(64), unique=True)
+    _guests = db.relationship('Guest', cascade="save-update, merge, delete")
 
-    def __init__(self, user, time_stamp):
-        self.trackperson = user
-        self.time_stamp = time_stamp
+    def __init__(self, name):
+        self.name = name
+
+    def add_guest(self, user):
+        self._guests.append(Guest(user_id=user.id, room_id=self.id))
+        db.session.commit()
+
+
+class Guest(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    room_id = db.Column(db.Integer, db.ForeignKey('room.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    is_active = db.Column(db.Boolean)
+    joined_on = db.Column(db.DateTime)
+    left_on = db.Column(db.DateTime)
+
+    def __init__(self, user_id, room_id):
+        self.user_id = user_id
+        self.room_id = room_id
+        self.is_active = True
+        self.joined_on = datetime.utcnow()
+
+    def leave_room(self):
+        self.is_active = False
+        self.left_on = datetime.utcnow()
+
+
+class Panic(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    guest_id = db.Column(db.Integer, db.ForeignKey('guest.user_id'))
+    guest = db.relationship('Guest', uselist=False)
+    time_stamp = db.Column(db.DateTime)
+
+    def __init__(self, user, room, time_stamp):
+        guest = Guest.query.filter_by(user_id=user.id, room_id=room.id).first()
+        if guest is None:
+            raise KeyError("Could not find guest.")
+        if not guest.is_active:
+            raise ValueError("Guest has left the room.")
+        self.time_stamp = time_stamp            
 
 
 @loginmanager.user_loader
@@ -66,4 +102,5 @@ def init_db():
     """ Run once to create tables """
     with app.app_context():
         db.create_all()
-
+        db.session.add(Room('default'))
+        db.session.commit()
