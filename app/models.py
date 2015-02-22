@@ -49,15 +49,27 @@ class User(db.Model):
 class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(64), unique=True)
-    _guests = db.relationship('Guest', cascade="save-update, merge, delete")
+    admin_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    admin = db.relationship('User', uselist=False)
+    guests = db.relationship('Guest', cascade="save-update, merge, delete")
+    created_on = db.Column(db.DateTime)
+    ended_on = db.Column(db.DateTime)
+    is_active = db.Column(db.Boolean)
 
-    def __init__(self, name):
+    def __init__(self, name, user):
         self.name = name
+        self.admin = user
+        self.guests.append(Guest(room_id=self.id, user_id=user.id))
+        self.is_active = True
+        self.created_on = datetime.utcnow()
 
     def add_guest(self, user):
-        self._guests.append(Guest(user_id=user.id, room_id=self.id))
+        self.guests.append(Guest(room_id=self.id, user_id=user.id))
         db.session.commit()
 
+    def end_session(self):
+        self.is_active = False
+        self.ended_on = datetime.utcnow()        
 
 class Guest(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -67,9 +79,9 @@ class Guest(db.Model):
     joined_on = db.Column(db.DateTime)
     left_on = db.Column(db.DateTime)
 
-    def __init__(self, user_id, room_id):
-        self.user_id = user_id
+    def __init__(self, room_id, user_id):
         self.room_id = room_id
+        self.user_id = user_id
         self.is_active = True
         self.joined_on = datetime.utcnow()
 
@@ -88,6 +100,8 @@ class Panic(db.Model):
         guest = Guest.query.filter_by(user_id=user.id, room_id=room.id).first()
         if guest is None:
             raise KeyError("Could not find guest.")
+        if guest is room.admin:
+            raise ValueError("Admin cannot submit a panic.")
         if not guest.is_active:
             raise ValueError("Guest has left the room.")
         self.time_stamp = time_stamp            
@@ -102,5 +116,7 @@ def init_db():
     """ Run once to create tables """
     with app.app_context():
         db.create_all()
-        db.session.add(Room('default'))
+        default_user = User('default', 'default')
+        db.session.add(default_user)
+        db.session.add(Room('default', default_user))
         db.session.commit()
