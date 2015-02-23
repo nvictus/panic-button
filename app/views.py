@@ -27,7 +27,7 @@ def signin():
             Room.query.filter_by(name='default').first().add_guest(user)
 
             flash("Signed in successfully.", "success")
-            return redirect(request.args.get("next") or url_for("index"))
+            return redirect(form.next.data or url_for("index"))
         else:
             flash("Invalid password", "error")
             return redirect(url_for('signin'))
@@ -117,7 +117,6 @@ def on_data_request():
     series = sorted(series, key=lambda x: x[0])
 
     return jsonify( {'series': series} )
-
 
 
 # New CRUD API

@@ -1,10 +1,11 @@
-from wtforms import TextField, PasswordField, validators
+from wtforms import TextField, PasswordField, HiddenField, validators
 from flask.ext.wtf import Form
 
 
 class SigninForm(Form):
     username = TextField('Username', [validators.required()])
     password = PasswordField('Password', [validators.required()])
+    next = HiddenField('Next')
 
 
 class RegistrationForm(Form):
